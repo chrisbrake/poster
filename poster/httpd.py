@@ -1,13 +1,8 @@
 import falcon
 import gunicorn.app.base
-from cerberus import Validator
-
 
 gunicorn_config = [('bind', '127.0.0.1:8080'), ('workers', 1)]
-validator_schema = {'name': {'type': 'string', 'required': True},
-                    'age': {'type': 'integer'}}
-with open('chat.html') as c:
-    chat_page = c.read()
+messages = list()
 
 
 class WebApplication(gunicorn.app.base.BaseApplication):
@@ -28,33 +23,34 @@ class WebApplication(gunicorn.app.base.BaseApplication):
         pass
 
 
-class RootResource(object):
-
-    def __init__(self):
-        self.items = ['test']
-        self.validator = Validator(validator_schema, allow_unknown=True)
+class Poster(object):
 
     def on_get(self, _, response):
         """ Send an HTML page the user can interact with """
-        response.body = chat_page
+        with open('chat.html') as c:
+            response.body = c.read()
         response.content_type = 'text/html'
         response.status = falcon.HTTP_200
 
+
+class Messages(object):
+
     def on_post(self, request, response):
         """ Accept chat messages """
-        data = request.media
-        if not self.validator.validate(data):
-            response.status = falcon.HTTP_400
-            response.media = self.validator.errors
-            return
-        self.items.append(data)
+        data = request.stream.read().decode("UTF-8")
+        messages.append(data)
         response.status = falcon.HTTP_200
-        response.body = 'Thank you'
+
+    def on_get(self, _, response):
+        """ Send chat messages """
+        response.media = messages
+        response.status = falcon.HTTP_200
 
 
 def main():
     api = falcon.API()
-    api.add_route('/', RootResource())
+    api.add_route('/', Poster())
+    api.add_route('/msgs', Messages())
     WebApplication(api, gunicorn_config).run()
 
 
