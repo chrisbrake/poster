@@ -6,6 +6,8 @@ from cerberus import Validator
 gunicorn_config = [('bind', '127.0.0.1:8080'), ('workers', 1)]
 validator_schema = {'name': {'type': 'string', 'required': True},
                     'age': {'type': 'integer'}}
+with open('chat.html') as c:
+    chat_page = c.read()
 
 
 class WebApplication(gunicorn.app.base.BaseApplication):
@@ -32,12 +34,14 @@ class RootResource(object):
         self.items = ['test']
         self.validator = Validator(validator_schema, allow_unknown=True)
 
-    def on_get(self, request, response):
-        """Handles GET requests"""
-        response.media = self.items
+    def on_get(self, _, response):
+        """ Send an HTML page the user can interact with """
+        response.body = chat_page
+        response.content_type = 'text/html'
+        response.status = falcon.HTTP_200
 
     def on_post(self, request, response):
-        """ Handles POST requests"""
+        """ Accept chat messages """
         data = request.media
         if not self.validator.validate(data):
             response.status = falcon.HTTP_400
