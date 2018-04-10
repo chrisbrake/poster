@@ -7,7 +7,7 @@ channel_data = {'main': ['Welcome to the main room.']}
 
 
 class WebApplication(gunicorn.app.base.BaseApplication):
-
+    """ The server that powers this application """
     def __init__(self, app, options):
         self.options = options
         self.application = app
@@ -25,7 +25,7 @@ class WebApplication(gunicorn.app.base.BaseApplication):
 
 
 class Poster(object):
-
+    """ The main page of this application """
     def on_get(self, _, resp):
         """ Send an HTML page the user can interact with """
         with open('static/chat.html', 'rb') as c:
@@ -35,7 +35,7 @@ class Poster(object):
 
 
 class Channels(object):
-
+    """ Segmented chat areas """
     def on_get(self, _, resp):
         """ Reply with a list of Channels """
         resp.media = list(channel_data.keys())
@@ -43,7 +43,7 @@ class Channels(object):
 
 
 class Channel(object):
-
+    """ A segment where a chat can take place """
     def on_get(self, _, resp, name):
         """ Reply with a list of Channels """
         resp.media = channel_data.get(name, [])
@@ -51,6 +51,10 @@ class Channel(object):
 
 
 def main():
+    """
+    The entry point into this application
+    :return: None
+    """
     api = falcon.API()
     api.add_route('/', Poster())
     api.add_route('/channels', Channels())
