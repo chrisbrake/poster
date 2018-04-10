@@ -1,8 +1,9 @@
 import falcon
 import gunicorn.app.base
+import os
 
 gunicorn_config = [('bind', '127.0.0.1:8080'), ('workers', 1)]
-messages = list()
+channel_data = {'main': ['Welcome to the main room.']}
 
 
 class WebApplication(gunicorn.app.base.BaseApplication):
@@ -25,32 +26,36 @@ class WebApplication(gunicorn.app.base.BaseApplication):
 
 class Poster(object):
 
-    def on_get(self, _, response):
+    def on_get(self, _, resp):
         """ Send an HTML page the user can interact with """
-        with open('chat.html') as c:
-            response.body = c.read()
-        response.content_type = 'text/html'
-        response.status = falcon.HTTP_200
+        with open('static/chat.html', 'rb') as c:
+            resp.body = c.read()
+        resp.content_type = falcon.MEDIA_HTML
+        resp.status = falcon.HTTP_200
 
 
-class Messages(object):
+class Channels(object):
 
-    def on_post(self, request, response):
-        """ Accept chat messages """
-        data = request.stream.read().decode("UTF-8")
-        messages.append(data)
-        response.status = falcon.HTTP_200
+    def on_get(self, _, resp):
+        """ Reply with a list of Channels """
+        resp.media = list(channel_data.keys())
+        resp.status = falcon.HTTP_200
 
-    def on_get(self, _, response):
-        """ Send chat messages """
-        response.media = messages
-        response.status = falcon.HTTP_200
+
+class Channel(object):
+
+    def on_get(self, _, resp, name):
+        """ Reply with a list of Channels """
+        resp.media = channel_data.get(name, [])
+        resp.status = falcon.HTTP_200
 
 
 def main():
     api = falcon.API()
     api.add_route('/', Poster())
-    api.add_route('/msgs', Messages())
+    api.add_route('/channels', Channels())
+    api.add_route('/channels/{name}', Channel())
+    api.add_static_route('/static', os.path.abspath('static'))
     WebApplication(api, gunicorn_config).run()
 
 
