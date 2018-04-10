@@ -1,4 +1,4 @@
-var getJSON = function(url) {
+function getJSON(url) {
   return new Promise(function(resolve, reject) {
     var xhr = new XMLHttpRequest();
     xhr.open('get', url, true);
@@ -27,9 +27,8 @@ function sendChat() {
 
 function getChannels() {
     getJSON('/channels').then(function(data) {
-        alert('Your Json result is:  ' + data.result[0]); //you can comment this, i used it to debug
-        document.getElementById('chatbox').innerText = data.result[0]; //display the result in an HTML element
-    }, function(status) { //error detection....
+        document.getElementById('chatbox').innerText = data.result[0];
+    }, function(status) {
         alert('Something went wrong.');
     });
 }
