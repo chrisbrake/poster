@@ -6,6 +6,7 @@ function getJSON(url) {
     xhr.onload = function() {
       var status = xhr.status;
       if (status == 200) {
+        console.log('Recieved ' + xhr.response)
         resolve(xhr.response);
       } else {
         reject(status);
@@ -16,19 +17,37 @@ function getJSON(url) {
 };
 
 function sendChat() {
-    var message = document.getElementById("message_to_send").value;
-    document.getElementById("message_to_send").value = "";
+    var message = document.getElementById("to_send").value;
+    document.getElementById("to_send").value = "";
     var xhr = new XMLHttpRequest();
     var url = "/channels/main";
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    console.log('Sending Message ' + message)
+    xhr.send(message);
+}
+
+function makeChannel() {
+    var message = document.getElementById("to_send").value;
+    document.getElementById("to_send").value = "";
+    var xhr = new XMLHttpRequest();
+    var url = "/channels/" + message;
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    console.log('Making Channel ' + message)
     xhr.send(message);
 }
 
 function getChannels() {
     getJSON('/channels').then(function(data) {
-        document.getElementById('chatbox').innerText = data.result[0];
-    }, function(status) {
-        alert('Something went wrong.');
+        var channel_selector = document.getElementById("channel_selector");
+        channel_selector.innerHTML = "";
+        data.forEach( function(channel) {
+            var btn = document.createElement("BUTTON");
+            btn.setAttribute("class", "btn");
+            var t = document.createTextNode(channel);
+            btn.appendChild(t);
+            channel_selector.appendChild(btn);
+        } );
     });
 }
