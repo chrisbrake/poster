@@ -1,9 +1,11 @@
 import falcon
 import gunicorn.app.base
 import os
+from log_init import log_maker
 
 gunicorn_config = [('bind', '127.0.0.1:8080'), ('workers', 1)]
 channel_data = {'main': ['Welcome to the main room.']}
+logger = log_maker()
 
 
 class WebApplication(gunicorn.app.base.BaseApplication):
@@ -38,16 +40,29 @@ class Channels(object):
     """ Segmented chat areas """
     def on_get(self, _, resp):
         """ Reply with a list of Channels """
-        resp.media = list(channel_data.keys())
+        channels = list(channel_data.keys())
+        resp.media = channels
         resp.status = falcon.HTTP_200
+        logger.debug('Channel List Request, returning: %s' % channels)
 
 
 class Channel(object):
     """ A segment where a chat can take place """
     def on_get(self, _, resp, name):
-        """ Reply with a list of Channels """
-        resp.media = channel_data.get(name, [])
+        """ Reply with a list of Channel data """
+        resp.media = channel_data.get(name)
         resp.status = falcon.HTTP_200
+        logger.debug(
+            'Channel %s Request, returning: %s' % name, channel_data.get(name))
+
+    def on_post(self, req, resp, name):
+        """ Add posted data to channel, creating it as needed """
+        if name not in channel_data:
+            channel_data[name] = list()
+        channel_data[name].append(req.media)
+        resp.status = falcon.HTTP_200
+        logger.debug(
+            'Channel %s Post: %s' % name, req.media)
 
 
 def main():
