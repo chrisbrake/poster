@@ -43,7 +43,8 @@ class Channels(object):
         channels = list(channel_data.keys())
         resp.media = channels
         resp.status = falcon.HTTP_200
-        logger.debug('Channel List Request, returning: %s' % channels)
+        logger.debug('Channel List Request, returning: {channels}'.format(
+            channels=channels))
 
 
 class Channel(object):
@@ -53,16 +54,21 @@ class Channel(object):
         resp.media = channel_data.get(name)
         resp.status = falcon.HTTP_200
         logger.debug(
-            'Channel %s Request, returning: %s' % name, channel_data.get(name))
+            'Channel {name} Request, returning: {data}'.format(
+                name=name, data=channel_data.get(name)))
 
     def on_post(self, req, resp, name):
         """ Add posted data to channel, creating it as needed """
         if name not in channel_data:
             channel_data[name] = list()
-        channel_data[name].append(req.media)
+            logger.debug('Channel {name} created'.format(name=name))
+        try:
+            channel_data[name].append(req.media['message'])
+        except KeyError:
+            logger.exception('Exception caught')
         resp.status = falcon.HTTP_200
-        logger.debug(
-            'Channel %s Post: %s' % name, req.media)
+        logger.debug('Channel {name} Post: {data}'.format(
+            name=name, data=req.media))
 
 
 def main():

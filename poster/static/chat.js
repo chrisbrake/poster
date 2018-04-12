@@ -16,26 +16,44 @@ function getJSON(url) {
   });
 };
 
-function sendChat() {
-    var message = document.getElementById("to_send").value;
-    document.getElementById("to_send").value = "";
+function postJSON(url, data) {
+    console.log('Connecting to: ' + url);
     var xhr = new XMLHttpRequest();
-    var url = "/channels/main";
     xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    console.log('Sending Message ' + message)
-    xhr.send(message);
+    xhr.setRequestHeader("Content-Type","application/json");
+    xhr.send(JSON.stringify(data));
+    console.log('Sending Data: ' + JSON.stringify(data));
 }
 
-function makeChannel() {
+function sendChat(channel) {
     var message = document.getElementById("to_send").value;
     document.getElementById("to_send").value = "";
-    var xhr = new XMLHttpRequest();
-    var url = "/channels/" + message;
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    postJSON("/channels/main/", {message:message});
+}
+
+function getChat() {
+    getJSON('/channels/main/').then(function(data) {
+        msg_list = document.createElement("ul");
+        data.forEach( function(message) {
+            console.log(message);
+            var msg_box = document.createElement("li");
+            msg_box.setAttribute("class", "list-group-item");
+            var t = document.createTextNode(message);
+            msg_box.appendChild(t);
+            msg_list.appendChild(msg_box);
+        } );
+        var chatbox = document.getElementById("chatbox");
+        chatbox.innerHTML = "";
+        chatbox.setAttribute("class", "list-group");
+        chatbox.appendChild(msg_list);
+    });
+}
+
+function makeChannel(channel) {
+    var message = document.getElementById("to_send").value;
+    document.getElementById("to_send").value = "";
+    postJSON("/channels/" + message, {channel:channel});
     console.log('Making Channel ' + message)
-    xhr.send(message);
 }
 
 function getChannels() {

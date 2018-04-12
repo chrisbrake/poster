@@ -9,10 +9,11 @@
 </head>
 <body>
 <div id="chatbox"></div>
-<div id="channel_selector"></div>
+<div id="channel_selector" class="nav"></div>
 <div id="message_area">
-    <input class="input-group" id="to_send" type="text" placeholder="Type here...">
+    <input id="to_send" class="input-group" type="text" placeholder="Type here...">
     <button class="btn" onclick="sendChat()">Send</button>
+    <button class="btn" onclick="getChat()">Get Chats</button>
     <button class="btn" onclick="makeChannel()">makeChannel</button>
     <button class="btn" onclick="getChannels()">getChannels</button>
 </div>
