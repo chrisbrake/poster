@@ -1,7 +1,7 @@
 import falcon
 import gunicorn.app.base
 import os
-from log_init import log_maker
+from poster.log_init import log_maker
 
 gunicorn_config = [('bind', '127.0.0.1:8080'), ('workers', 1)]
 channel_data = {'main': ['Welcome to the main room.']}
@@ -33,7 +33,6 @@ class Poster(object):
         with open('static/chat.html', 'rb') as c:
             resp.body = c.read()
         resp.content_type = falcon.MEDIA_HTML
-        resp.status = falcon.HTTP_200
 
 
 class Channels(object):
@@ -42,7 +41,6 @@ class Channels(object):
         """ Reply with a list of Channels """
         channels = list(channel_data.keys())
         resp.media = channels
-        resp.status = falcon.HTTP_200
         logger.debug('Channel List Request, returning: {channels}'.format(
             channels=channels))
 
@@ -52,7 +50,6 @@ class Channel(object):
     def on_get(self, _, resp, name):
         """ Reply with a list of Channel data """
         resp.media = channel_data.get(name)
-        resp.status = falcon.HTTP_200
         logger.debug(
             'Channel {name} Request, returning: {data}'.format(
                 name=name, data=channel_data.get(name)))
@@ -66,9 +63,9 @@ class Channel(object):
             channel_data[name].append(req.media['message'])
         except KeyError:
             logger.exception('Exception caught')
-        resp.status = falcon.HTTP_200
-        logger.debug('Channel {name} Post: {data}'.format(
-            name=name, data=req.media))
+            resp.status = falcon.HTTP_400
+            logger.debug('Channel {name} Post: {data}'.format(
+                name=name, data=req.media))
 
 
 def main():
