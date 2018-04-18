@@ -6,7 +6,6 @@ function getJSON(url) {
     xhr.onload = function() {
       var status = xhr.status;
       if (status == 200) {
-        console.log('Recieved ' + xhr.response)
         resolve(xhr.response);
       } else {
         reject(status);
@@ -17,12 +16,10 @@ function getJSON(url) {
 };
 
 function postJSON(url, data) {
-    console.log('Connecting to: ' + url);
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type","application/json");
     xhr.send(JSON.stringify(data));
-    console.log('Sending Data: ' + JSON.stringify(data));
 }
 
 function sendChat(channel) {
@@ -35,7 +32,6 @@ function getChat() {
     getJSON('/channels/main/').then(function(data) {
         msg_list = document.createElement("ul");
         data.forEach( function(message) {
-            console.log(message);
             var msg_box = document.createElement("li");
             msg_box.setAttribute("class", "list-group-item");
             var t = document.createTextNode(message);
@@ -53,7 +49,6 @@ function makeChannel(channel) {
     var message = document.getElementById("to_send").value;
     document.getElementById("to_send").value = "";
     postJSON("/channels/" + message, {channel:channel});
-    console.log('Making Channel ' + message)
 }
 
 function getChannels() {
@@ -69,3 +64,5 @@ function getChannels() {
         } );
     });
 }
+
+window.setInterval("getChat()", 500);
