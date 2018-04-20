@@ -1,18 +1,18 @@
-import falcon
+import flask
 import gunicorn.app.base
-import os
 from poster.log_init import log_maker
 
+logger = log_maker()
+app = flask.Flask(__name__)
 gunicorn_config = [('bind', '127.0.0.1:8080'), ('workers', 1)]
 channel_data = {'main': ['Welcome to the main room.']}
-logger = log_maker()
 
 
 class WebApplication(gunicorn.app.base.BaseApplication):
     """ The server that powers this application """
-    def __init__(self, app, options):
+    def __init__(self, application, options):
         self.options = options
-        self.application = app
+        self.application = application
         super(WebApplication, self).__init__()
 
     def load_config(self):
@@ -26,46 +26,35 @@ class WebApplication(gunicorn.app.base.BaseApplication):
         pass
 
 
-class Poster(object):
-    """ The main page of this application """
-    def on_get(self, _, resp):
-        """ Send an HTML page the user can interact with """
-        with open('static/chat.html', 'rb') as c:
-            resp.body = c.read()
-        resp.content_type = falcon.MEDIA_HTML
+@app.route('/')
+def poster():
+    """ Send an HTML page the user can interact with """
+    with open('static/chat.html', 'rb') as c:
+        return c.read()
 
 
-class Channels(object):
-    """ Segmented chat areas """
-    def on_get(self, _, resp):
-        """ Reply with a list of Channels """
-        channels = list(channel_data.keys())
-        resp.media = channels
-        logger.debug('Channel List Request, returning: {channels}'.format(
-            channels=channels))
+@app.route('/channels/')
+def channels():
+    """ Reply with a list of Channels """
+    return flask.jsonify(list(channel_data.keys()))
 
 
-class Channel(object):
-    """ A segment where a chat can take place """
-    def on_get(self, _, resp, name):
-        """ Reply with a list of Channel data """
-        resp.media = channel_data.get(name)
-        logger.debug(
-            'Channel {name} Request, returning: {data}'.format(
-                name=name, data=channel_data.get(name)))
-
-    def on_post(self, req, resp, name):
-        """ Add posted data to channel, creating it as needed """
+@app.route('/channels/<name>', methods=['GET', 'POST'])
+def channel(name):
+    """ Reply with a list of Channel data """
+    if flask.request.method == 'POST':
         if name not in channel_data:
             channel_data[name] = list()
-            logger.debug('Channel {name} created'.format(name=name))
-        try:
-            channel_data[name].append(req.media['message'])
-        except KeyError:
-            logger.exception('Exception caught')
-            resp.status = falcon.HTTP_400
-            logger.debug('Channel {name} Post: {data}'.format(
-                name=name, data=req.media))
+        posted_data = flask.request.get_json()
+        channel_data[name].append(posted_data.get('message'))
+        return flask.jsonify('OK')
+    elif flask.request.method == 'GET':
+        return flask.jsonify(channel_data.get(name))
+
+
+@app.route('/static/<path:path>')
+def static_files(path):
+    return flask.send_from_directory('static', path)
 
 
 def main():
@@ -73,12 +62,7 @@ def main():
     The entry point into this application
     :return: None
     """
-    api = falcon.API()
-    api.add_route('/', Poster())
-    api.add_route('/channels', Channels())
-    api.add_route('/channels/{name}', Channel())
-    api.add_static_route('/static', os.path.abspath('static'))
-    WebApplication(api, gunicorn_config).run()
+    WebApplication(app, gunicorn_config).run()
 
 
 if __name__ == '__main__':

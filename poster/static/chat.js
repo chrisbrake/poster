@@ -25,11 +25,11 @@ function postJSON(url, data) {
 function sendChat(channel) {
     var message = document.getElementById("to_send").value;
     document.getElementById("to_send").value = "";
-    postJSON("/channels/main/", {message:message});
+    postJSON("/channels/main", {message:message});
 }
 
 function getChat() {
-    getJSON('/channels/main/').then(function(data) {
+    getJSON('/channels/main').then(function(data) {
         msg_list = document.createElement("ul");
         data.forEach( function(message) {
             var msg_box = document.createElement("li");
