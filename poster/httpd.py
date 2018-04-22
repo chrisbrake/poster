@@ -4,7 +4,17 @@ from poster.log_init import log_maker
 
 logger = log_maker()
 
-gunicorn_config = [('bind', '127.0.0.1:8080'), ('workers', 1)]
+gunicorn_config = [
+    ('bind', '127.0.0.1:8080'),
+    ('certfile', 'cert.pem'),
+    ('forwarded_allow_ips', '*'),
+    ('keyfile', 'key.pem'),
+    ('secure_scheme_headers', {"X-FORWARDED-PROTO": "http"}),
+    ('workers', 1),
+]
+# To Generate cert and key files:
+# openssl req -x509 -newkey rsa:4096 -days 365 -nodes \
+#   -keyout key.pem -out cert.pem
 
 
 class WebApplication(gunicorn.app.base.BaseApplication):
