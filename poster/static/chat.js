@@ -25,11 +25,11 @@ function postJSON(url, data) {
 function sendChat(channel) {
     var message = document.getElementById("to_send").value;
     document.getElementById("to_send").value = "";
-    postJSON("/channels/main", {message:message});
+    postJSON("/api/v1/channels/main", {message:message});
 }
 
 function getChat() {
-    getJSON('/channels/main').then(function(data) {
+    getJSON('/api/v1/channels/main').then(function(data) {
         msg_list = document.createElement("ul");
         data.forEach( function(message) {
             var msg_box = document.createElement("li");
@@ -48,11 +48,11 @@ function getChat() {
 function makeChannel(channel) {
     var message = document.getElementById("to_send").value;
     document.getElementById("to_send").value = "";
-    postJSON("/channels/" + message, {channel:channel});
+    postJSON("/api/v1/channels/" + message, {channel:channel});
 }
 
 function getChannels() {
-    getJSON('/channels').then(function(data) {
+    getJSON('/api/v1/channels').then(function(data) {
         var channel_selector = document.getElementById("channel_selector");
         channel_selector.innerHTML = "";
         data.forEach( function(channel) {
