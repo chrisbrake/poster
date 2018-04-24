@@ -3,4 +3,4 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
-CMD ["python", "poster/httpd.py"]
+CMD ["python", "httpd.py"]

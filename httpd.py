@@ -5,7 +5,7 @@ from poster.log_init import log_maker
 logger = log_maker()
 
 gunicorn_config = [
-    ('bind', '127.0.0.1:8080'),
+    ('bind', '0.0.0.0:8080'),
     ('certfile', 'cert.pem'),
     ('forwarded_allow_ips', '*'),
     ('keyfile', 'key.pem'),
