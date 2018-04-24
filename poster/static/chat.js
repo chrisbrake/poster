@@ -1,3 +1,6 @@
+// TODO: Move to WebSockets
+// https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
+
 function getJSON(url) {
   return new Promise(function(resolve, reject) {
     var xhr = new XMLHttpRequest();
