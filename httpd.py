@@ -1,8 +1,5 @@
 import gunicorn.app.base
 from poster import app
-from poster.log_init import log_maker
-
-logger = log_maker()
 
 gunicorn_config = [
     ('bind', '0.0.0.0:8080'),

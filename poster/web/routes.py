@@ -11,4 +11,5 @@ def poster():
 
 @web_mod.route('/static/<path:path>')
 def static_files(path):
+    """ Serve up static files from the static directory """
     return send_from_directory('static', path)
