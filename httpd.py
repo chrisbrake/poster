@@ -7,7 +7,7 @@ gunicorn_config = [
     ('forwarded_allow_ips', '*'),
     ('keyfile', 'key.pem'),
     ('secure_scheme_headers', {"X-FORWARDED-PROTO": "http"}),
-    ('workers', 1),
+    ('workers', 3),
 ]
 
 
