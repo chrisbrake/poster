@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_socketio import SocketIO, send
 from poster.web import web_mod
 from poster.log_init import log_maker
@@ -13,29 +13,29 @@ api_sio = SocketIO(app)
 channel_data = {'main': ['Welcome to the main room.']}
 
 
-@api_sio.on('connect', namespace='/api_v1')
-def channels():
+@api_sio.on('connect', namespace='/api/')
+def on_connect():
     """ Reply with a list of Channel data """
     logger.debug('Connection happened')
     send(channel_data, json=True)
 
 
-@api_sio.on('message', namespace='/api_v1')
-def channels(message):
+@api_sio.on('message', namespace='/api/')
+def on_message(message):
     """ Reply with a list of Channel data """
     logger.debug('Got message: ', message)
     send(channel_data, json=True)
 
 
-@api_sio.on('json', namespace='/api_v1')
-def channels(json):
+@api_sio.on('json', namespace='/api/')
+def on_json(json):
     """ Reply with a list of Channel data """
     logger.debug('Got json: ', json)
     send(channel_data, json=True)
 
 
-@api_sio.on('disconnect', namespace='/api_v1')
-def channels():
+@api_sio.on('disconnect', namespace='/api/')
+def on_disconnect():
     """ Reply with a list of Channel data """
     logger.debug('Disconnection happened')
 

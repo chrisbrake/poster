@@ -1,19 +1,20 @@
-// TODO: Move to WebSockets
-// https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
-// https://robots.thoughtbot.com/json-event-based-convention-websockets
 
 $(document).ready(function() {
-    var socket = io.connect("wss://" + document.location.host + document.location.pathname + "api_v1");
+    var url = document.location.host;
+    var socket = io.connect(url, {
+        path: "/api",
+        rejectUnauthorized: false
+        });
 
-    socket.on('connect', function() {
-        socket.send("I have connected")
+    socket.on("connect", function() {
+        socket.send({data: "I have connected"})
+        console.log("I have connected")
     });
 
-    socket.on('message', function(msg){
-        console.log('message recieved')
-        console.log(msg)
+    socket.on("json", function(msg){
+        console.log("json received", msg)
         msg_list = document.createElement("ul");
-        evt.json.data.forEach( function(message) {
+        msg.json.data.forEach( function(message) {
             var msg_box = document.createElement("li");
             msg_box.setAttribute("class", "list-group-item");
             var t = document.createTextNode(message);
@@ -31,8 +32,8 @@ $(document).ready(function() {
 function getJSON(url) {
   return new Promise(function(resolve, reject) {
     var xhr = new XMLHttpRequest();
-    xhr.open('get', url, true);
-    xhr.responseType = 'json';
+    xhr.open("get", url, true);
+    xhr.responseType = "json";
     xhr.onload = function() {
       var status = xhr.status;
       if (status == 200) {
@@ -64,7 +65,7 @@ function makeChannel(channel) {
 }
 
 function getChannels() {
-    getJSON('/api_v1/channels').then(function(data) {
+    getJSON("/api_v1/channels").then(function(data) {
         var channel_selector = document.getElementById("channel_selector");
         channel_selector.innerHTML = "";
         data.forEach( function(channel) {
