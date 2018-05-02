@@ -1,20 +1,16 @@
 
 $(document).ready(function() {
     var url = document.location.host;
-    var socket = io.connect(url, {
-        path: "/api",
-        rejectUnauthorized: false
-        });
+    var socket = io.connect(url);
 
     socket.on("connect", function() {
-        socket.send({data: "I have connected"})
         console.log("I have connected")
     });
 
     socket.on("json", function(msg){
         console.log("json received", msg)
         msg_list = document.createElement("ul");
-        msg.json.data.forEach( function(message) {
+        msg.main.forEach( function(message) {
             var msg_box = document.createElement("li");
             msg_box.setAttribute("class", "list-group-item");
             var t = document.createTextNode(message);
@@ -28,7 +24,7 @@ $(document).ready(function() {
     });
 });
 
-
+/*
 function getJSON(url) {
   return new Promise(function(resolve, reject) {
     var xhr = new XMLHttpRequest();
@@ -76,4 +72,4 @@ function getChannels() {
             channel_selector.appendChild(btn);
         } );
     });
-}
+}*/

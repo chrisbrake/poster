@@ -13,28 +13,28 @@ api_sio = SocketIO(app)
 channel_data = {'main': ['Welcome to the main room.']}
 
 
-@api_sio.on('connect', namespace='/api/')
+@api_sio.on('connect')
 def on_connect():
     """ Reply with a list of Channel data """
     logger.debug('Connection happened')
     send(channel_data, json=True)
 
 
-@api_sio.on('message', namespace='/api/')
+@api_sio.on('message')
 def on_message(message):
     """ Reply with a list of Channel data """
     logger.debug('Got message: ', message)
     send(channel_data, json=True)
 
 
-@api_sio.on('json', namespace='/api/')
+@api_sio.on('json')
 def on_json(json):
     """ Reply with a list of Channel data """
     logger.debug('Got json: ', json)
     send(channel_data, json=True)
 
 
-@api_sio.on('disconnect', namespace='/api/')
+@api_sio.on('disconnect')
 def on_disconnect():
     """ Reply with a list of Channel data """
     logger.debug('Disconnection happened')
