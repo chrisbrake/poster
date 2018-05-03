@@ -24,10 +24,11 @@ def on_connect():
 def on_message(chat):
     """ Reply with a list of Channel data """
     logger.debug('Got chat: ', chat)
-    if not chat.get('msg'):
+    try:
+        chat_data.append(chat['msg'])
+        send(chat_data, json=True, broadcast=True)
+    except KeyError:
         return
-    chat_data.append(chat.get('msg'))
-    send(chat_data, json=True, broadcast=True)
 
 
 @api_sio.on('disconnect')
