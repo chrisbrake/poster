@@ -10,28 +10,24 @@ app.config['SECRET_KEY'] = 'Super Secret!'
 app.register_blueprint(web_mod)
 api_sio = SocketIO(app)
 
-channel_data = {'main': ['Welcome to the main room.']}
+chat_data = ['Welcome']
 
 
 @api_sio.on('connect')
 def on_connect():
     """ Reply with a list of Channel data """
     logger.debug('Connection happened')
-    send(channel_data, json=True)
+    send(chat_data, json=True)
 
 
-@api_sio.on('message')
-def on_message(message):
+@api_sio.on('chat')
+def on_message(chat):
     """ Reply with a list of Channel data """
-    logger.debug('Got message: ', message)
-    send(channel_data, json=True)
-
-
-@api_sio.on('json')
-def on_json(json):
-    """ Reply with a list of Channel data """
-    logger.debug('Got json: ', json)
-    send(channel_data, json=True)
+    logger.debug('Got chat: ', chat)
+    if not chat.get('msg'):
+        return
+    chat_data.append(chat.get('msg'))
+    send(chat_data, json=True, broadcast=True)
 
 
 @api_sio.on('disconnect')
