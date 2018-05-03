@@ -15,25 +15,28 @@ chat_data = ['Welcome']
 
 @api_sio.on('connect')
 def on_connect():
-    """ Reply with a list of Channel data """
+    """ Actions to perform when a new client connects """
     logger.debug('Connection happened')
-    emit("chat", chat_data, json=True)
+    emit('chat', chat_data, json=True)
 
 
 @api_sio.on('chat')
 def on_chat(chat):
-    """ Reply with a list of Channel data """
+    """ Actions to perform when a new chat message arrives """
     logger.debug('Got chat: %s' % chat)
     try:
-        chat_data.append(chat['msg'])
-        emit("chat", chat_data, json=True, broadcast=True)
+        msg = chat['msg']
+        if not msg:
+            return
+        chat_data.append(msg)
+        emit('chat', chat_data, json=True, broadcast=True)
     except KeyError:
         return
 
 
 @api_sio.on('disconnect')
 def on_disconnect():
-    """ Reply with a list of Channel data """
+    """ Actions to perform when a disconnect occurs """
     logger.debug('Disconnection happened')
 
 
