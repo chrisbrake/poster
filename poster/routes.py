@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_socketio import SocketIO, send
+from flask_socketio import SocketIO, emit
 from poster.web import web_mod
 from poster.log_init import log_maker
 
@@ -17,16 +17,16 @@ chat_data = ['Welcome']
 def on_connect():
     """ Reply with a list of Channel data """
     logger.debug('Connection happened')
-    send(chat_data, json=True)
+    emit("chat", chat_data, json=True)
 
 
 @api_sio.on('chat')
 def on_chat(chat):
     """ Reply with a list of Channel data """
-    logger.debug('Got chat: ', chat)
+    logger.debug('Got chat: %s' % chat)
     try:
         chat_data.append(chat['msg'])
-        send(chat_data, json=True, broadcast=True)
+        emit("chat", chat_data, json=True, broadcast=True)
     except KeyError:
         return
 

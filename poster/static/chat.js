@@ -6,8 +6,8 @@ socket.on("connect", function() {
     console.log("I have connected")
 });
 
-socket.on("json", function(msg){
-    console.log("json received", msg)
+socket.on("chat", function(msg){
+    console.log("chat received", msg)
     msg_list = document.createElement("ul");
     msg.forEach( function(message) {
         var msg_box = document.createElement("li");
@@ -25,5 +25,5 @@ socket.on("json", function(msg){
 function sendChat(channel) {
     var message = document.getElementById("to_send").value;
     document.getElementById("to_send").value = "";
-    socket.emit('chat', {msg: message});
+    socket.emit("chat", {msg: message});
 };
