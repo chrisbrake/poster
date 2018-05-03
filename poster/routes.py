@@ -21,7 +21,7 @@ def on_connect():
 
 
 @api_sio.on('chat')
-def on_message(chat):
+def on_chat(chat):
     """ Reply with a list of Channel data """
     logger.debug('Got chat: ', chat)
     try:
