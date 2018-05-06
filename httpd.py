@@ -34,6 +34,7 @@ def main():
     The entry point into this application
     :return: None
     """
+    app.debug = True
     WebApplication(app, gunicorn_config).run()
 
 

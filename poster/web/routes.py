@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, send_from_directory
 
-web_mod = Blueprint('poster_web', __name__)
+web_mod = Blueprint('web', __name__)
 
 
 @web_mod.route('/')

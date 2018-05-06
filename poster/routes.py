@@ -1,5 +1,8 @@
 from flask import Flask
+from flask_login import LoginManager
 from flask_socketio import SocketIO, emit
+from poster.auth import auth_mod, User, users
+from poster.data import chat_data
 from poster.web import web_mod
 from poster.log_init import log_maker
 
@@ -8,9 +11,34 @@ logger = log_maker()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Super Secret!'
 app.register_blueprint(web_mod)
+app.register_blueprint(auth_mod, url_prefix='/auth')
 api_sio = SocketIO(app)
 
-chat_data = ['Welcome']
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def user_loader(name):
+    if name not in users:
+        return
+
+    user = User()
+    user.id = name
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+    name = request.form.get('name')
+    if name not in users:
+        return
+
+    user = User()
+    user.id = name
+    user.is_authenticated = request.form['password'] == users[name]['password']
+
+    return user
 
 
 @api_sio.on('connect')
