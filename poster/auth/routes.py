@@ -1,7 +1,6 @@
 from flask import (
     Blueprint, render_template, request, redirect, url_for)
-from flask_login import (
-    current_user, login_required, login_user, logout_user)
+from flask_login import login_user, logout_user
 
 from poster.auth import User, users
 
@@ -21,12 +20,6 @@ def login():
         return redirect(url_for('web.poster'))
 
     return 'Bad login', 401
-
-
-@auth_mod.route('/protected')
-@login_required
-def protected():
-    return 'Logged in as: ' + current_user.id
 
 
 @auth_mod.route('/logout')
