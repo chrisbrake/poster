@@ -1,6 +1,6 @@
 from flask import Flask
-from flask_login import LoginManager
-from flask_socketio import SocketIO, emit
+from flask_login import LoginManager, current_user
+from flask_socketio import SocketIO, emit, disconnect
 from poster.auth import auth_mod, User, users
 from poster.data import chat_data
 from poster.web import web_mod
@@ -44,6 +44,8 @@ def request_loader(request):
 
 @api_sio.on('connect')
 def on_connect():
+    if not current_user.is_authenticated:
+        disconnect()
     """ Actions to perform when a new client connects """
     logger.debug('Connection happened')
     emit('chat', chat_data, json=True)
