@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 
@@ -13,15 +12,15 @@ class Message(object):
         self.channel = channel
         self.data = data
 
-    def as_json(self):
+    def export(self):
         """
         Convert this object to a JSON string.
-        :return: String, formatted as JSON.
+        :return: Dictionary representation of internal data.
         """
-        return json.dumps({
+        return {
             'created': self.created.timestamp(),
             'modified': self.modified.timestamp(),
-            'created_by': self.created_by.id,
+            'created_by': self.created_by,
             'channel': self.channel,
             'data': self.data
-        })
+        }

@@ -1,1 +1,2 @@
-chat_data = ['Welcome']
+from .channel import Channel
+from .message import Message

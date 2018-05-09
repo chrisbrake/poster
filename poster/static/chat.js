@@ -12,7 +12,7 @@ socket.on("chat", function(msg){
     msg.forEach( function(message) {
         var msg_box = document.createElement("li");
         msg_box.setAttribute("class", "list-group-item col-sm-12");
-        var t = document.createTextNode(message);
+        var t = document.createTextNode(message.data);
         msg_box.appendChild(t);
         msg_list.appendChild(msg_box);
     } );

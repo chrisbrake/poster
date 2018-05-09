@@ -2,7 +2,7 @@ from flask import Flask
 from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, emit, disconnect
 from poster.auth import auth_mod, User, users
-from poster.data import chat_data
+from poster.data import Channel, Message
 from poster.web import web_mod
 from poster.log_init import log_maker
 
@@ -17,6 +17,16 @@ api_sio = SocketIO(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
+
+
+def channel_observer(message):
+    logger.debug('observed a new message: %s' % message)
+    emit('chat', message, json=True, broadcast=True)
+
+
+Channels = dict()
+Channels['main'] = Channel('main')
+Channels['main'].add_observer(channel_observer)
 
 
 @login_manager.user_loader
@@ -48,7 +58,7 @@ def on_connect():
         disconnect()
     """ Actions to perform when a new client connects """
     logger.debug('Connection happened')
-    emit('chat', chat_data, json=True)
+    emit('chat', Channels['main'].messages, json=True)
 
 
 @api_sio.on('chat')
@@ -59,8 +69,7 @@ def on_chat(chat):
         msg = chat['msg']
         if not msg:
             return
-        chat_data.append(msg)
-        emit('chat', chat_data, json=True, broadcast=True)
+        Channels['main'].new_message = msg
     except KeyError:
         return
 
