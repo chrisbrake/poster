@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, emit, disconnect
+from poster.api import api_mod
 from poster.auth import auth_mod, User, users
-from poster.data import Channel, Message
+from poster.data import Channels
 from poster.web import web_mod
 from poster.log_init import log_maker
 
@@ -12,6 +13,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Super Secret!'
 app.register_blueprint(web_mod)
 app.register_blueprint(auth_mod, url_prefix='/auth')
+app.register_blueprint(api_mod, url_prefix='/api')
 api_sio = SocketIO(app)
 
 login_manager = LoginManager()
@@ -24,9 +26,8 @@ def channel_observer(message):
     emit('chat', message, json=True, broadcast=True)
 
 
-Channels = dict()
-Channels['main'] = Channel('main')
-Channels['main'].add_observer(channel_observer)
+for channel in Channels.values():
+    channel.add_observer(channel_observer)
 
 
 @login_manager.user_loader
