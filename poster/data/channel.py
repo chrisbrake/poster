@@ -21,8 +21,10 @@ class Channel(object):
 
     @new_message.setter
     def new_message(self, message):
+        if not isinstance(message, Message):
+            raise TypeError('message needs to be of Type Message.')
         self.lock.acquire()
-        self._messages.append(Message(data=message, created_by='unknown'))
+        self._messages.append(message)
         for observer in self._observers:
             observer(self.messages)
         self.lock.release()

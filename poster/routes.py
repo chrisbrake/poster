@@ -3,7 +3,7 @@ from flask_login import LoginManager, current_user
 from flask_socketio import SocketIO, emit, disconnect
 from poster.api import api_mod
 from poster.auth import auth_mod, User, users
-from poster.data import Channels
+from poster.data import Channels, Message
 from poster.web import web_mod
 from poster.log_init import log_maker
 
@@ -23,7 +23,7 @@ login_manager.login_view = 'auth.login'
 
 def channel_observer(message):
     logger.debug('observed a new message: %s' % message)
-    emit('chat', message, json=True, broadcast=True)
+    api_sio.emit('chat', message, json=True, broadcast=True)
 
 
 for channel in Channels.values():
@@ -70,7 +70,8 @@ def on_chat(chat):
         msg = chat['msg']
         if not msg:
             return
-        Channels['main'].new_message = msg
+        Channels['main'].new_message = Message(
+            created_by=current_user.id, data=msg)
     except KeyError:
         return
 

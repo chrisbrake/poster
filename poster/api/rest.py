@@ -1,19 +1,11 @@
-from flask import Blueprint
-from flask_restful import Api, Resource, reqparse, fields
-from ..data import Channels, Message
+from flask import Blueprint, request
+from flask_restful import Api, Resource
+from poster.data import Channels, Message
+from poster.log_init import log_maker
 
+logger = log_maker()
 api_mod = Blueprint('api', __name__)
 api = Api(api_mod)
-
-post_parser = reqparse.RequestParser()
-post_parser.add_argument(
-    'data', dest='data', type=fields.String, location='form', required=True,
-    help='The contents of the message',
-)
-post_parser.add_argument(
-    'created_by', dest='created_by', type=fields.String, location='form',
-    default='unknown', help='The username associated with message creation',
-)
 
 
 class MessageResource(Resource):
@@ -21,9 +13,10 @@ class MessageResource(Resource):
         return Channels[channel].messages
 
     def post(self, channel):
-        args = post_parser.parse_args()
-        Channels[channel].new_message = Message(
-            data=args.get('data'), created_by=args.get('created_by'))
+        data = request.json.get('data')
+        creator = request.json.get('created_by')
+        logger.debug('ReST Data: created_by %s, data %s' % (creator, data))
+        Channels[channel].new_message = Message(data=data, created_by=creator)
 
 
 api.add_resource(MessageResource, '/Messages/<channel>')
