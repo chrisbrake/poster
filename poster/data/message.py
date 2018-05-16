@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import time
 
 class Message(object):
     """
@@ -18,8 +18,8 @@ class Message(object):
         :return: Dictionary representation of internal data.
         """
         return {
-            'created': self.created.timestamp(),
-            'modified': self.modified.timestamp(),
+            'created': time.mktime(self.created.timetuple()),
+            'modified': time.mktime(self.modified.timetuple()),
             'created_by': self.created_by,
             'channel': self.channel,
             'data': self.data
