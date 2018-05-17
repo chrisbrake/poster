@@ -2,7 +2,7 @@ from threading import Lock
 from .message import Message
 
 
-class Channel(object):
+class Room(object):
     """ An object to handle messages in a channel """
 
     def __init__(self, name):
@@ -26,7 +26,7 @@ class Channel(object):
         self.lock.acquire()
         self._messages.append(message)
         for observer in self._observers:
-            observer(self.messages)
+            observer(self.name, self.messages)
         self.lock.release()
 
     def add_observer(self, observer):

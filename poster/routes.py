@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_login import LoginManager, current_user
-from flask_socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO, emit, disconnect, join_room, leave_room
 from poster.api import api_mod
 from poster.auth import auth_mod, User, users
-from poster.data import Channels, Message
+from poster.data import Room, rooms, Message
 from poster.web import web_mod
 from poster.log_init import log_maker
 
@@ -21,13 +21,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 
 
-def channel_observer(message):
+def room_observer(room, message):
     logger.debug('observed a new message: %s' % message)
-    api_sio.emit('chat', message, json=True, broadcast=True)
-
-
-for channel in Channels.values():
-    channel.add_observer(channel_observer)
+    api_sio.emit('chat', message, room=room, json=True)
 
 
 @login_manager.user_loader
@@ -59,7 +55,6 @@ def on_connect():
         disconnect()
     """ Actions to perform when a new client connects """
     logger.debug('Connection happened')
-    emit('chat', Channels['main'].messages, json=True)
 
 
 @api_sio.on('chat')
@@ -68,12 +63,29 @@ def on_chat(chat):
     logger.debug('Got chat: %s' % chat)
     try:
         msg = chat['msg']
-        if not msg:
-            return
-        Channels['main'].new_message = Message(
-            created_by=current_user.id, data=msg)
+        room = chat['room']
+        if room not in rooms:
+            rooms[room] = Room(room)
+            rooms[room].add_observer(room_observer)
+        rooms[room].new_message = Message(created_by=current_user.id, data=msg)
     except KeyError:
         return
+
+
+@api_sio.on('join')
+def on_join(data):
+    """ Actions to be performed when a client requests to join a room """
+    room = data['room']
+    join_room(room)
+    on_chat({'msg': current_user.id + ' has entered ' + room, 'room': room})
+
+
+@api_sio.on('leave')
+def on_leave(data):
+    """ Actions to be performed when a client requests to leave a room """
+    room = data['room']
+    leave_room(room)
+    on_chat({'msg': current_user.id + ' has left ' + room})
 
 
 @api_sio.on('disconnect')

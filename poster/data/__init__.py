@@ -1,5 +1,3 @@
-from .channel import Channel
+from .room import Room
 from .message import Message
-
-Channels = dict()
-Channels['main'] = Channel('main')
+rooms = dict()

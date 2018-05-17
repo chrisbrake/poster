@@ -1,8 +1,10 @@
 
 var url = document.location.host;
 var socket = io.connect(url);
+var current_room = "main"
 
 socket.on("connect", function() {
+    socket.emit("join", {room: current_room});
     console.log("I have connected")
 });
 
@@ -22,8 +24,18 @@ socket.on("chat", function(msg){
     chatbox.appendChild(msg_list);
 });
 
-function sendChat(channel) {
+function sendChat() {
     var message = document.getElementById("to_send").value;
     document.getElementById("to_send").value = "";
-    socket.emit("chat", {msg: message});
+    socket.emit("chat", {room: current_room, msg: message});
+};
+
+function changeRooms(to_room) {
+    var to_room = document.getElementById("room_picker").value;
+    document.getElementById("room_picker").value = "";
+    console.log("leaving " + current_room)
+    socket.emit("leave", {room: current_room});
+    current_room = to_room
+    console.log("joining " + current_room)
+    socket.emit("join", {room: current_room});
 };
